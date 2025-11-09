@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, jsonify
+from flask import Flask, render_template, request, send_file, jsonify, Response
 import os
 from utils.sound_cipher import encode_text_to_wav, decode_wav_to_text, text_to_frequencies, frequencies_to_text
 
@@ -24,8 +24,14 @@ def encode():
         output_path = os.path.join(app.config['UPLOAD_FOLDER'], 'encoded.wav')
         encode_text_to_wav(text, output_path)
         
-        return send_file(output_path, as_attachment=True, download_name='encoded_message.wav')
-    
+        # ✅ Explicitly set correct MIME type and download headers
+        return send_file(
+            output_path,
+            mimetype='audio/wav',
+            as_attachment=True,
+            download_name='encoded_message.wav'
+        )
+
     return render_template('encode.html')
 
 @app.route('/decode', methods=['GET', 'POST'])
@@ -89,4 +95,3 @@ def decode_client():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
